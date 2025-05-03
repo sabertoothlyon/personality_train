@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Personality Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #1a4b8c;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .video-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .video-container video {
+            width: 100%;
+            display: block;
+        }
+
+        main {
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .question {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .question h3 {
+            margin-top: 0;
+            color: #1a4b8c;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .options label {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .options label:hover {
+            background-color: #f0f0f0;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        button {
+            background-color: #1a4b8c;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            margin: 20px 0;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #123666;
+        }
+
+        .result {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .result h2 {
+            color: #1a4b8c;
+            margin-top: 0;
+        }
+
+        .personality-description {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+        }
+
+        .train-images {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .train-images img {
+            width: 100px;
+            filter: grayscale(100%);
+            transition: filter 0.3s;
+        }
+
+        .train-images img.active {
+            filter: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Everything I've Learned About People, I've Learned From Thomas...</h1>
+        <p>Discover your inner train personality based on how you handle various situations!</p>
+    </header>
+    
+    <div class="video-container">
+        <video id="introVideo" controls>
+            <source src="bullet_train.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <main>
+        <form id="quizForm">
+            <div id="questions"></div>
+            <button type="submit">What would Thomas the Tank Engine say?</button>
+        </form>
+
+        <div class="result" id="result">
+            <h2>Your Train Personality Is:</h2>
+            <div id="personalityResult"></div>
+            <div class="personality-description" id="description"></div>
+        </div>
+
+        <div class="train-images" id="trainImages">
+            <img src="Gordon%20the%20Big%20Engine.png" alt="Gordon" id="Gordon">
+            <img src="Edward%20the%20Blue%20Engine.png" alt="Edward" id="Edward">
+            <img src="Percy%20the%20Small%20Engine.png" alt="Percy" id="Percy">
+            <img src="Thomas%20the%20Tank%20Engine.png" alt="Thomas" id="Thomas">
+            <img src="Diesel.png" alt="Diesel" id="Diesel">
+        </div>
+    </main>
+
+    <script>
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    const personalities = {
+        Thomas: {
+            name: "Thomas the Tank Engine",
+            description: "You believe that simple is better. Thomas embodies the Blue personality with his practical, straightforward approach to problem-solving. He's not one for unnecessary complications and always seeks the most direct route to a solution. His focus on simplicity and clarity aligns with the Blue personality's value of precision and effectiveness. Thomas values clear communication and structure, aiming to accomplish tasks with little fuss.",
+            image: "Thomas"
+        },
+        Percy: {
+            name: "Percy the Small Engine",
+            description: "You are young and not all there, but good at heart. Percy fits the Yellow personality with his boundless energy and optimistic outlook. Though sometimes inexperienced, Percy's enthusiasm and commitment to making others happy shine through. He tends to see the best in people and keeps the group spirit high. He may make mistakes, but his heart is always in the right place, and he often brings joy and laughter wherever he goes.",
+            image: "Percy"
+        },
+        Gordon: {
+            name: "Gordon the Big Engine",
+            description: "You are strong and important, but you may not always listen to others. Gordon exemplifies a Red personality through his strong leadership and high expectations. He prides himself on being powerful and capable, often feeling frustrated when others don't meet his standards. Gordon's focus is always on getting things done efficiently and effectively, though his high-strung nature sometimes makes him come across as overly critical of others, especially those he sees as 'idiots'. He values competence and results above all.",
+            image: "Gordon"
+        },
+        Edward: {
+            name: "Edward the Blue Engine",
+            description: "You are wise and kind. Edward's wisdom and patience make him a perfect example of the Green personality. As a mentor, he often guides others with kindness and understanding, focusing on helping his fellow engines. His calm demeanor and ability to listen make him an invaluable friend to those around him. He's reliable, always ready to support others, and values empathy above all else.",
+            image: "Edward"
+        },
+        Diesel: {
+            name: "Diesel",
+            description: "You are tricky and cause trouble.  He's manipulative, tricky, and thrives on causing problems for others. Diesel enjoys stirring up trouble, often with a self-serving agenda that leaves others in the lurch. He doesn't take responsibility for his actions and tends to be untrustworthy, using deception as a tool to get ahead. His approach is all about creating chaos and seeing how far he can go before his schemes are exposed.",
+            image: "Diesel"
+        }
+    };
+
+    const questions = [
+    {
+        question: "How do you handle customer inquiries during a busy shift?",
+        options: [
+            { text: "Ensure the most urgent questions are addressed quickly.", personality: "Gordon" }, // Red
+            { text: "Stay upbeat and engage customers in a friendly way.", personality: "Percy" }, // Yellow
+            { text: "Calmly ensure each customer feels valued and heard.", personality: "Edward" }, // Green
+            { text: "Provide thorough and accurate responses, even if it takes more time.", personality: "Thomas" }, // Blue
+            { text: "Pretend not to notice and let someone else deal with it.", personality: "Diesel" } // Grey
+        ]
+    },
+    {
+        question: "How do you approach working as part of the onboard service team?",
+        options: [
+            { text: "Take charge to ensure the team stays on task.", personality: "Gordon" }, // Red
+            { text: "Encourage and keep the team's energy positive.", personality: "Percy" }, // Yellow
+            { text: "Ensure everyone feels included and supported.", personality: "Edward" }, // Green
+            { text: "Focus on responsibilities and assist others as needed.", personality: "Thomas" }, // Blue
+            { text: "Stir up disagreements or purposely avoid doing your part.", personality: "Diesel" } // Grey
+        ]
+    },
+    {
+        question: "What do you value most about working with passengers?",
+        options: [
+            { text: "Solving problems quickly and efficiently.", personality: "Gordon" }, // Red
+            { text: "Connecting with passengers and making their journey enjoyable.", personality: "Percy" }, // Yellow
+            { text: "Ensuring passengers feel comfortable and cared for.", personality: "Edward" }, // Green
+            { text: "Delivering accurate and high-quality service.", personality: "Thomas" }, // Blue
+            { text: "Watching others struggle to handle the demanding ones.", personality: "Diesel" } // Grey
+        ]
+    },
+    {
+        question: "How do you handle a frustrated passenger?",
+        options: [
+            { text: "Listen briefly and offer a practical solution immediately.", personality: "Gordon" }, // Red
+            { text: "Empathize, lighten the mood, and reassure them.", personality: "Percy" }, // Yellow
+            { text: "Patiently listen and show understanding before resolving the issue.", personality: "Edward" }, // Green
+            { text: "Gather all details to provide a clear and fair resolution.", personality: "Thomas" }, // Blue
+            { text: "Make a sarcastic comment or escalate the situation for fun.", personality: "Diesel" } // Grey
+        ]
+    },
+    {
+        question: "What motivates you most in your role?",
+        options: [
+            { text: "Achieving smooth operations and positive feedback.", personality: "Gordon" }, // Red
+            { text: "Making the journey memorable for passengers.", personality: "Percy" }, // Yellow
+            { text: "Seeing passengers and teammates happy and at ease.", personality: "Edward" }, // Green
+            { text: "Ensuring every aspect of service is perfect.", personality: "Thomas" }, // Blue
+            { text: "Finding clever ways to do as little work as possible.", personality: "Diesel" } // Grey
+        ]
+    },
+{
+        question: "How do you interact with passengers during downtime?",
+        options: [
+            { text: "Use the opportunity to check in and build rapport.", personality: "Gordon" }, // Red
+            { text: "Engage with passengers in a fun, cheerful way.", personality: "Percy" }, // Yellow
+            { text: "Offer a listening ear or small gestures of support.", personality: "Edward" }, // Green
+            { text: "Provide useful information or assist with any concerns.", personality: "Thomas" }, // Blue
+            { text: "Avoid passengers entirely or make unhelpful comments.", personality: "Diesel" } // Grey
+        ]
+    },
+    {
+        question: "How do you handle tight schedules or unexpected delays?",
+        options: [
+            { text: "Stay focused and lead the team to resolve the situation quickly.", personality: "Gordon" }, // Red
+            { text: "Keep spirits high and help others stay motivated.", personality: "Percy" }, // Yellow
+            { text: "Reassure passengers and teammates to keep the situation calm.", personality: "Edward" }, // Green
+            { text: "Analyze the delay and communicate accurate updates.", personality: "Thomas" }, // Blue
+            { text: "Blame someone else or point out problems without offering solutions.", personality: "Diesel" } // Grey
+        ]
+    },
+    {
+        question: "What's your focus during the safety briefing?",
+        options: [
+            { text: "Ensure everyone understands and follows the instructions.", personality: "Gordon" }, // Red
+            { text: "Present the briefing with energy and engagement.", personality: "Percy" }, // Yellow
+            { text: "Deliver the briefing clearly and with patience.", personality: "Edward" }, // Green
+            { text: "Provide thorough and detailed information about the procedures.", personality: "Thomas" }, // Blue
+            { text: "Skip over it or make a joke to see if anyone notices.", personality: "Diesel" } // Grey
+        ]
+    },
+    {
+        question: "How do you celebrate a successful day onboard?",
+        options: [
+            { text: "Acknowledge the team's hard work and reflect on accomplishments.", personality: "Gordon" }, // Red
+            { text: "Spread positivity and congratulate everyone involved.", personality: "Percy" }, // Yellow
+            { text: "Quietly thank others for their efforts and relax together.", personality: "Edward" }, // Green
+            { text: "Take note of what went well and prepare for future improvements.", personality: "Thomas" }, // Blue
+            { text: "Highlight mistakes others made to keep them humble.", personality: "Diesel" } // Grey
+        ]
+    },
+    {
+        question: "How do you respond to challenging passengers?",
+        options: [
+            { text: "Address their concerns directly and efficiently.", personality: "Gordon" }, // Red
+            { text: "Use humor and empathy to diffuse the situation.", personality: "Percy" }, // Yellow
+            { text: "Stay calm and provide understanding and support.", personality: "Edward" }, // Green
+            { text: "Focus on resolving the issue using clear communication.", personality: "Thomas" }, // Blue
+            { text: "Provoke them further to make the situation worse.", personality: "Diesel" } // Grey
+        ]
+    },
+    {
+        question: "What's your leadership style during a busy shift?",
+        options: [
+            { text: "Set clear goals and ensure the team stays on track.", personality: "Gordon" }, // Red
+            { text: "Keep morale high and motivate the team with encouragement.", personality: "Percy" }, // Yellow
+            { text: "Support the team by being approachable and understanding.", personality: "Edward" }, // Green
+            { text: "Delegate tasks efficiently and maintain order.", personality: "Thomas" }, // Blue
+            { text: "Delegate all the work while you relax or disappear.", personality: "Diesel" } // Grey
+        ]
+    },
+    {
+        question: "How do you like to receive feedback on your performance?",
+        options: [
+            { text: "Appreciate honest, constructive feedback to improve.", personality: "Gordon" }, // Red
+            { text: "Enjoy positive feedback and recognition for your efforts.", personality: "Percy" }, // Yellow
+            { text: "Value thoughtful and empathetic feedback that helps you grow.", personality: "Edward" }, // Green
+            { text: "Prefer detailed, actionable feedback for improvement.", personality: "Thomas" }, // Blue
+            { text: "Dismiss it or make excuses, no matter what's said.", personality: "Diesel" } // Grey
+        ]
+    },
+    {
+        question: "How do you adapt to onboard policy changes?",
+        options: [
+            { text: "Quickly integrate changes to improve operations.", personality: "Gordon" }, // Red
+            { text: "Approach changes with enthusiasm and help others adapt.", personality: "Percy" }, // Yellow
+            { text: "Help teammates understand the changes and support them.", personality: "Edward" }, // Green
+            { text: "Learn the new policies thoroughly and follow them precisely.", personality: "Thomas" }, // Blue
+            { text: "Ignore the changes or subtly sabotage them.", personality: "Diesel" } // Grey
+        ]
+    },
+	{
+        question: "What frustrates you most while working onboard?",
+        options: [
+            { text: "Inefficiency or slow decision-making.", personality: "Gordon" }, // Red
+            { text: "Negative attitudes or lack of engagement.", personality: "Percy" }, // Yellow
+            { text: "Unnecessary conflict or lack of teamwork.", personality: "Edward" }, // Green
+            { text: "Errors or lack of organization.", personality: "Thomas" }, // Blue
+            { text: "When I'm asked to do something I don't want to do.", personality: "Diesel" } // Grey
+        ]
+    },
+{
+        question: "How do you maintain your energy during a long day?",
+        options: [
+            { text: "Staying focused on completing tasks.", personality: "Gordon" }, // Red
+            { text: "Interacting and joking with passengers or teammates.", personality: "Percy" }, // Yellow
+            { text: "Taking short moments to recharge quietly.", personality: "Edward" }, // Green
+            { text: "Staying organized and following a plan.", personality: "Thomas" }, // Blue
+            { text: "By finding ways to avoid tasks and make others do them.", personality: "Diesel" } // Grey
+        ]
+    },
+{
+        question: "How do you handle passenger complaints?",
+        options: [
+            { text: "I address them directly and propose solutions immediately.", personality: "Gordon" }, // Red
+            { text: "I reassure the passenger and work to turn their experience around.", personality: "Percy" }, // Yellow
+            { text: "I listen and show understanding before resolving the issue.", personality: "Edward" }, // Green
+            { text: "I gather all facts before explaining the resolution clearly.", personality: "Thomas" }, // Blue
+            { text: "I deflect responsibility or make the issue seem unimportant.", personality: "Diesel" } // Grey
+        ]
+    },
+{
+        question: "What's your biggest strength when working onboard?",
+        options: [
+            { text: "Efficiency and problem-solving.", personality: "Gordon" }, // Red
+            { text: "Making passengers feel welcome and excited.", personality: "Percy" }, // Yellow
+            { text: "Creating a calm and supportive atmosphere.", personality: "Edward" }, // Green
+            { text: "Ensuring precision and quality service.", personality: "Thomas" }, // Blue
+            { text: "My ability to avoid taking any responsibility.", personality: "Diesel" } // Grey
+        ]
+    },
+{
+        question: " How do you assist passengers who need extra help?",
+        options: [
+            { text: "I quickly assess their needs and take charge.", personality: "Gordon" }, // Red
+            { text: "I make them feel at ease with a friendly approach.", personality: "Percy" }, // Yellow
+            { text: "I patiently guide them step by step.", personality: "Edward" }, // Green
+            { text: "I carefully explain and ensure their needs are met.", personality: "Thomas" }, // Blue
+            { text: "I pretend I'm too busy or point them in the wrong direction.", personality: "Diesel" } // Grey
+        ]
+    },
+{
+        question: "How do you react when a teammate is struggling?",
+        options: [
+            { text: "I step in to help them keep things moving.", personality: "Gordon" }, // Red
+            { text: "I cheer them up and offer encouragement.", personality: "Percy" }, // Yellow
+            { text: "I offer quiet support and reassurance.", personality: "Edward" }, // Green
+            { text: "I give practical advice to resolve the issue.", personality: "Thomas" }, // Blue
+            { text: "I let them fail and find it amusing.", personality: "Diesel" } // Grey
+        ]
+    },
+{
+        question: "How do you prepare for a shift?",
+        options: [
+            { text: "I plan key tasks and anticipate challenges.", personality: "Gordon" }, // Red
+            { text: "I focus on starting the day with energy.", personality: "Percy" }, // Yellow
+            { text: "I ensure I'm organized and ready to support others.", personality: "Edward" }, // Green
+            { text: "I review all materials and ensure everything is in order.", personality: "Thomas" }, // Blue
+            { text: "By showing up late or unprepared and winging it.", personality: "Diesel" } // Grey
+        ]
+    },
+{
+        question: "How do you handle repeated passenger questions?",
+        options: [
+            { text: "I answer quickly and efficiently.", personality: "Gordon" }, // Red
+            { text: "I respond with humor or enthusiasm to keep it fresh.", personality: "Percy" }, // Yellow
+            { text: "I patiently answer each time with kindness.", personality: "Edward" }, // Green
+            { text: "I provide detailed answers to ensure clarity.", personality: "Thomas" }, // Blue
+            { text: "I act annoyed and tell them to figure it out themselves.", personality: "Diesel" } // Grey
+        ]
+    },
+{
+        question: "What do you prioritize during peak travel times?",
+        options: [
+            { text: "Keeping everything running smoothly.", personality: "Gordon" }, // Red
+            { text: "Maintaining a positive and fun atmosphere.", personality: "Percy" }, // Yellow
+            { text: "Ensuring passengers feel comfortable and relaxed.", personality: "Edward" }, // Green
+            { text: "Avoiding mistakes by staying organized.", personality: "Thomas" }, // Blue
+            { text: "Avoiding work and letting others handle the chaos.", personality: "Diesel" } // Grey
+        ]
+    },
+{
+        question: "How do you handle downtime between shifts?",
+        options: [
+            { text: "I use the time to think about how to improve efficiency.", personality: "Gordon" }, // Red
+            { text: "I connect with teammates and enjoy the moment.", personality: "Percy" }, // Yellow
+            { text: "I rest and prepare for the next shift.", personality: "Edward" }, // Green
+            { text: "I review feedback and plan improvements.", personality: "Thomas" }, // Blue
+            { text: "I criticize others or spread gossip.", personality: "Diesel" } // Grey
+        ]
+    },
+{
+        question: "What's your role in enhancing the passenger experience?",
+        options: [
+            { text: "Delivering efficient and reliable service.", personality: "Gordon" }, // Red
+            { text: "Creating a vibrant and engaging atmosphere.", personality: "Percy" }, // Yellow
+            { text: "Providing comfort and a sense of welcome.", personality: "Edward" }, // Green
+            { text: "Ensuring everything meets high standards.", personality: "Thomas" }, // Blue
+            { text: "Creating confusion or minor annoyances just to see what happens.", personality: "Diesel" } // Grey
+        ]
+    },
+{
+        question: "How do you feel after a successful journey?",
+        options: [
+            { text: "Ready to take on the next challenge.", personality: "Gordon" }, // Red
+            { text: "Excited to celebrate with the team.", personality: "Percy" }, // Yellow
+            { text: "Proud of the teamwork and passenger satisfaction.", personality: "Edward" }, // Green
+            { text: "Pleased that everything went according to plan.", personality: "Thomas" }, // Blue
+            { text: "Disappointed I didn't find more ways to stir up trouble.", personality: "Diesel" } // Grey
+        ]
+    },
+    // Repeat the structure for all remaining questions
+];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const questionsContainer = document.getElementById('questions');
+
+        questions.forEach((q, index) => {
+            shuffleArray(q.options); // Shuffle the options
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question';
+            questionDiv.innerHTML = `
+                <h3>Question ${index + 1}</h3>
+                <p>${q.question}</p>
+                <div class="options">
+                    ${q.options.map(option => `
+                        <label>
+                            <input type="radio" name="q${index}" value="${option.personality}" required>
+                            ${option.text}
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+            questionsContainer.appendChild(questionDiv);
+        });
+
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const answers = Array.from(new FormData(this).values());
+            const tally = answers.reduce((acc, val) => {
+                acc[val] = (acc[val] || 0) + 1;
+                return acc;
+            }, {});
+
+            const result = Object.entries(tally).reduce((a, b) => (b[1] > a[1] ? b : a));
+            const personalityType = personalities[result[0]];
+
+            document.getElementById('personalityResult').textContent = personalityType.name;
+            document.getElementById('description').textContent = personalityType.description;
+            
+            document.querySelectorAll('.train-images img').forEach(img => img.classList.remove('active'));
+            document.getElementById(personalityType.image).classList.add('active');
+            
+            document.getElementById('result').style.display = 'block';
+        });
+    });
+    </script>
+</body>
+</html>
